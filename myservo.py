@@ -11,17 +11,20 @@ class Servo:
         self.starting_angle = None
 
     def set_angle(self, angle):
-        norm = angle / 180.0
-        self.p.ChangeDutyCycle(norm * 8.4 + 2.2)
-        
-        if self.starting_angle == None:
-            delta = 180
-        else:
-            delta = abs(self.starting_angle - angle)
-        time.sleep(delta * 0.4 / 180 + 0.05)
-        self.starting_angle = angle
-        
-        self.p.ChangeDutyCycle(0)
+        print("angles",self.starting_angle,angle)
+        if self.starting_angle != angle:
+            norm = angle / 180.0
+            norm = min(1,max(0,norm))
+            self.p.ChangeDutyCycle(norm * 8.4 + 2.2)
+            
+            if self.starting_angle == None:
+                delta = 180
+            else:
+                delta = abs(self.starting_angle - angle)
+            time.sleep(delta * 0.4 / 180 + 0.05)
+            self.starting_angle = angle
+            
+            self.p.ChangeDutyCycle(0)
 
     def freeze_angle(self):
         self.p.ChangeDutyCycle(0)
