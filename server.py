@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import socketserver
+import socket
 import argparse
 import myservo
 import json
@@ -15,8 +16,9 @@ class CommandTCPHandler(socketserver.BaseRequestHandler):
         self.data = json.loads(self.data)
         print("data",type(self.data),self.data)
         for i in range(len(servos)):
-            servos[i].set_angle(self.data[i])
-        
+            servos[i].set_angle(self.data[i], False)
+            servos[i].chill_bro()
+                
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-ip", default="127.0.0.1",
@@ -31,15 +33,28 @@ HOST, PORT = args.ip, int(args.port)
 servos = myservo.Servo(int(args.s1)),myservo.Servo(int(args.s2))
 
 # Create the server, binding to localhost on port 3647
+server = None
 try:
-    with socketserver.TCPServer((HOST, PORT), CommandTCPHandler) as server:
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
-        server.serve_forever()
+    server = socketserver.TCPServer((HOST, PORT), CommandTCPHandler)
+    server.timeout = 0.1
+    # Activate the server; this will keep running until you
+    # interrupt the program with Ctrl-C
+    while True:
+        server.handle_request()
+        for w in servos:
+            w.chill_bro()
+    #server.serve_forever()
+                
+        
 finally:
-    server.shutdown()
+    print("stopping")
+    #server.shutdown()
+    print("stopping2")
     for w in servos:
         w.stop()
-    server.close()
+    print("stopping3")
+    if server!=None:
+        server.server_close()
+    print("stopped")
 
 
