@@ -43,4 +43,3 @@ class Servo:
 
     def stop(self):
         self.p.stop()
-        GPIO.cleanup()

@@ -5,6 +5,7 @@ import socket
 import argparse
 import myservo
 import json
+import RPi.GPIO as GPIO
 
 class CommandTCPHandler(socketserver.BaseRequestHandler):
 
@@ -45,16 +46,14 @@ try:
             w.chill_bro()
     #server.serve_forever()
                 
-        
+except KeyboardInterrupt:
+    pass
 finally:
-    print("stopping")
     #server.shutdown()
-    print("stopping2")
     for w in servos:
         w.stop()
-    print("stopping3")
+    GPIO.cleanup()
     if server!=None:
         server.server_close()
-    print("stopped")
 
 
