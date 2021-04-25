@@ -9,10 +9,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-ip", default="127.0.0.1",
     help="The ip the server should be bound to, type ipconfig (or ifconfig) in the command line to get your local ip.")
 parser.add_argument("-port", default="3647", help="The port the server should be bound to.")
-parser.add_argument("-sizex", default="400", help="defaut x size of window")
-parser.add_argument("-sizey", default="400", help="defaut x size of window")
-parser.add_argument("-flip1",action='store_true', help="flip servo 1")
-parser.add_argument("-flip2",action='store_true', help="flip servo 2")
+parser.add_argument("-sizex", default="400", help="X size of window")
+parser.add_argument("-sizey", default="400", help="Y size of window")
+parser.add_argument("-flip1", action='store_true', help="Flip servo 1?")
+parser.add_argument("-flip2", action='store_true', help="Flip servo 2?")
+parser.add_argument("-movex", default="1", help="Jump size when using A and D")
+parser.add_argument("-movey", default="1", help="Jump size when using W and S")
 args = parser.parse_args()
 print("args",args)
 
@@ -22,6 +24,8 @@ root = tk.Tk()
 root.geometry(args.sizex+"x"+args.sizey)
 win_size = (float(args.sizex), float(args.sizey))
 circle_size = (win_size[0] / 20, win_size[1] / 20)
+jump_size = (float(args.movex), float(args.movey))
+
 my_canvas = tk.Canvas(root, width = win_size[0], height = win_size[1])
 my_canvas.pack()
 
@@ -32,13 +36,13 @@ sock = None
 
 def key(event):
     if event.char=='d':
-        set_pos(x+1, y)
+        set_pos(x+jump_size[0], y)
     if event.char=='a':
-        set_pos(x-1, y)
+        set_pos(x-jump_size[0], y)
     if event.char=='s':
-        set_pos(x, y+1)
+        set_pos(x, y+jump_size[1])
     if event.char=='w':
-        set_pos(x, y-1)
+        set_pos(x, y-jump_size[1])
 
 def motion(event):
     set_pos(event.x, event.y)
