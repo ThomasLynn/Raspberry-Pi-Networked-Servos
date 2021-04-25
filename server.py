@@ -28,6 +28,8 @@ class CommandTCPHandler(socketserver.BaseRequestHandler):
         while True:
             # self.request is the TCP socket connected to the client
             data = self.request.recv(10_000)
+            if len(data) == 0:
+                break
             print("data",type(data),data)
             #self.data = list(self.data)
             
