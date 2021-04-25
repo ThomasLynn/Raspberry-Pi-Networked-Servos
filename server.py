@@ -5,7 +5,9 @@ import socket
 import argparse
 import myservo
 import json
-import RPi.GPIO as GPIO
+import pigpio
+
+pi = pigpio.pi()
 
 class CommandTCPHandler(socketserver.BaseRequestHandler):
 
@@ -31,7 +33,7 @@ args = parser.parse_args()
 
 HOST, PORT = args.ip, int(args.port)
 
-servos = myservo.Servo(int(args.s1)),myservo.Servo(int(args.s2))
+servos = myservo.Servo(int(args.s1),pi),myservo.Servo(int(args.s2),pi)
 
 # Create the server, binding to localhost on port 3647
 server = None
@@ -42,18 +44,20 @@ try:
     # interrupt the program with Ctrl-C
     while True:
         server.handle_request()
-        #for w in servos:
-        #    w.chill_bro()
+        for w in servos:
+            w.chill_bro()
     #server.serve_forever()
                 
 except KeyboardInterrupt:
     pass
 finally:
+    #for w in servos:
+    #    w.stop()
+    #GPIO.cleanup()
+    pi.stop()
     if server!=None:
         server.server_close()
-    #server.shutdown()
-    for w in servos:
-        w.stop()
-    GPIO.cleanup()
+        print("server closed")
+    print("server shutdown")
 
 
