@@ -10,17 +10,32 @@ import pigpio
 pi = pigpio.pi()
 
 class CommandTCPHandler(socketserver.BaseRequestHandler):
+    
+    def set_position(self, data):
+        print("got data",type(data),data)
+        for i in range(len(data)):
+            if chr(data[i]) == "]":
+                data = data[:i+1]
+                break
+        print("got data2",type(data),data)
+        data = json.loads(data)
+        print("data2",type(data),data)
+        for i in range(len(servos)):
+            servos[i].set_angle(data[i], False)
+            servos[i].chill_bro()
 
     def handle(self):
-        # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(1024)
-        print("data",type(self.data),self.data)
-        #self.data = list(self.data)
-        self.data = json.loads(self.data)
-        print("data",type(self.data),self.data)
-        for i in range(len(servos)):
-            servos[i].set_angle(self.data[i], False)
-            servos[i].chill_bro()
+        while True:
+            # self.request is the TCP socket connected to the client
+            data = self.request.recv(10_000)
+            print("data",type(data),data)
+            #self.data = list(self.data)
+            
+            self.set_position(data)
+            #split_data = str(data).split("][")
+            #for w in split_data:
+            #    self.set_position(str(w))
+            
                 
 
 parser = argparse.ArgumentParser()
