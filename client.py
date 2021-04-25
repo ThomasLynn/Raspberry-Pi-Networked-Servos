@@ -28,6 +28,8 @@ my_canvas.pack()
 x = 90
 y = 90
 
+sock = None
+
 def key(event):
     if event.char=='d':
         set_pos(x+1, y)
@@ -45,20 +47,21 @@ def set_pos(new_x, new_y):
     global x,y
     x, y = new_x, new_y
     print('{}, {}'.format(x, y))
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        # Connect to server and send data
-        sock.connect((HOST, PORT))
-        positions = [float(x)*180.0/win_size[0],float(y)*180.0/win_size[0]]
-        if args.flip1:
-            positions[0] = 180 - positions[0]
-        if args.flip2:
-            positions[1] = 180 - positions[1]
-        sock.sendall(json.dumps(positions).encode())
-        #sock.sendall(bytes([x,y]))
+    positions = [float(x)*180.0/win_size[0],float(y)*180.0/win_size[0]]
+    if args.flip1:
+        positions[0] = 180 - positions[0]
+    if args.flip2:
+        positions[1] = 180 - positions[1]
+    sock.sendall(json.dumps(positions).encode())
+    #sock.sendall(bytes([x,y]))
     my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
     my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1])
 
 root.bind('<B1-Motion>', motion)
 root.bind('<Button-1>', motion)
 root.bind('<Key>', key)
-root.mainloop()
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket:
+    # Connect to server and send data
+    sock = socket
+    socket.connect((HOST, PORT))
+    root.mainloop()
