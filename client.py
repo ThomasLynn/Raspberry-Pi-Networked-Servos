@@ -21,7 +21,8 @@ HOST, PORT = args.ip, int(args.port)
 root = tk.Tk()
 root.geometry(args.sizex+"x"+args.sizey)
 win_size = (float(args.sizex), float(args.sizey))
-my_canvas = tk.Canvas(root)
+circle_size = (win_size[0] / 20, win_size[1] / 20)
+my_canvas = tk.Canvas(root, width = win_size[0], height = win_size[1])
 my_canvas.pack()
 
 x = 90
@@ -55,7 +56,7 @@ def set_pos(new_x, new_y):
         sock.sendall(json.dumps(positions).encode())
         #sock.sendall(bytes([x,y]))
     my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
-    my_canvas.create_oval(x-5, y-5, x+5, y+5)
+    my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1])
 
 root.bind('<B1-Motion>', motion)
 root.bind('<Button-1>', motion)
