@@ -27,13 +27,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-ip", default="127.0.0.1",
     help="The ip the server should be bound to, type ipconfig (or ifconfig) in the command line to get your local ip.")
 parser.add_argument("-port", default="3647", help="The port the server should be bound to.")
-parser.add_argument("-s1", default="12", help="GPIO pin of servo 1")
-parser.add_argument("-s2", default="13", help="GPIO pin of servo 2")
+parser.add_argument("-x_servo", default="12", help="GPIO pin of servo controlled by x axis movement")
+parser.add_argument("-y_servo", default="13", help="GPIO pin of servo controlled by y axis movement")
 args = parser.parse_args()
 
 HOST, PORT = args.ip, int(args.port)
 
-servos = myservo.Servo(int(args.s1),pi),myservo.Servo(int(args.s2),pi)
+servos = myservo.Servo(int(args.x_servo),pi),myservo.Servo(int(args.y_servo),pi)
 
 # Create the server, binding to localhost on port 3647
 server = None
