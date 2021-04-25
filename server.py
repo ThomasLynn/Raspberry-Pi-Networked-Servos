@@ -49,11 +49,11 @@ try:
 except KeyboardInterrupt:
     pass
 finally:
+    if server!=None:
+        server.server_close()
     #server.shutdown()
     for w in servos:
         w.stop()
     GPIO.cleanup()
-    if server!=None:
-        server.server_close()
 
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import RPi.GPIO as GPIO
 import time
 
@@ -24,9 +26,10 @@ class Servo:
             else:
                 delta = abs(self.starting_angle - angle)
                 
+            self.starting_angle = angle            
             if block:
-                time.sleep(delta * 0.4 / 180 + 0.05)
-                self.starting_angle = angle
+                time.sleep(delta * 0.5 / 180 + 0.1)
+                
                 self.p.ChangeDutyCycle(0)
             else:
                 self.wait_time = time.time() + (delta * 0.4 / 180 + 0.05)
