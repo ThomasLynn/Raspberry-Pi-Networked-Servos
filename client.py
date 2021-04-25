@@ -28,7 +28,6 @@ x = 90
 y = 90
 
 def key(event):
-    print("event",event)
     if event.char=='d':
         set_pos(x+1, y)
     if event.char=='a':
