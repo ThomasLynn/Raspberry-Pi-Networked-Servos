@@ -11,7 +11,10 @@ parser.add_argument("-ip", default="127.0.0.1",
 parser.add_argument("-port", default="3647", help="The port the server should be bound to.")
 parser.add_argument("-sizex", default="400", help="defaut x size of window")
 parser.add_argument("-sizey", default="400", help="defaut x size of window")
+parser.add_argument("-flip1",action='store_true', help="flip servo 1")
+parser.add_argument("-flip2",action='store_true', help="flip servo 2")
 args = parser.parse_args()
+print("args",args)
 
 HOST, PORT = args.ip, int(args.port)
 
@@ -25,7 +28,12 @@ def motion(event):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send data
         sock.connect((HOST, PORT))
-        sock.sendall(json.dumps([float(x)*180.0/win_size[0],float(y)*180.0/win_size[0]]).encode())
+        positions = [float(x)*180.0/win_size[0],float(y)*180.0/win_size[0]]
+        if args.flip1:
+            positions[0] = 180 - positions[0]
+        if args.flip2:
+            positions[1] = 180 - positions[1]
+        sock.sendall(json.dumps(positions).encode())
         #sock.sendall(bytes([x,y]))
 
 root.bind('<Motion>', motion)
