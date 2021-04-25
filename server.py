@@ -42,8 +42,8 @@ try:
     # interrupt the program with Ctrl-C
     while True:
         server.handle_request()
-        for w in servos:
-            w.chill_bro()
+        #for w in servos:
+        #    w.chill_bro()
     #server.serve_forever()
                 
 except KeyboardInterrupt:
