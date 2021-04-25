@@ -27,8 +27,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-ip", default="127.0.0.1",
     help="The ip the server should be bound to, type ipconfig (or ifconfig) in the command line to get your local ip.")
 parser.add_argument("-port", default="3647", help="The port the server should be bound to.")
-parser.add_argument("-s1", default="17", help="GPIO pin of servo 1")
-parser.add_argument("-s2", default="27", help="GPIO pin of servo 2")
+parser.add_argument("-s1", default="12", help="GPIO pin of servo 1")
+parser.add_argument("-s2", default="13", help="GPIO pin of servo 2")
 args = parser.parse_args()
 
 HOST, PORT = args.ip, int(args.port)
@@ -38,7 +38,11 @@ servos = myservo.Servo(int(args.s1),pi),myservo.Servo(int(args.s2),pi)
 # Create the server, binding to localhost on port 3647
 server = None
 try:
-    server = socketserver.TCPServer((HOST, PORT), CommandTCPHandler)
+    server = socketserver.TCPServer((HOST, PORT), CommandTCPHandler, bind_and_activate=False)
+    server.allow_reuse_address = True
+    server.server_bind()
+    server.server_activate()
+    
     server.timeout = 0.1
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C

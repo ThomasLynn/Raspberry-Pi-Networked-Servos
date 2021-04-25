@@ -18,8 +18,8 @@ class Servo:
         if self.starting_angle != angle:
             norm = angle / 180.0
             norm = min(1,max(0,norm))
-            print("value",int((norm * 8.4 + 2.2)*10_000))
-            self.pi.hardware_PWM(self.pin,50,int((norm * 8.4 + 2.2)*10_000))            
+            print("value",int(norm * 88_000 + 29_000))
+            self.pi.hardware_PWM(self.pin,50,int(norm * 88_000 + 29_000))            
             if self.starting_angle == None:
                 delta = 180
             else:
