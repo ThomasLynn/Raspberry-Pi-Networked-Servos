@@ -21,9 +21,29 @@ HOST, PORT = args.ip, int(args.port)
 root = tk.Tk()
 root.geometry(args.sizex+"x"+args.sizey)
 win_size = (float(args.sizex), float(args.sizey))
+my_canvas = tk.Canvas(root)
+my_canvas.pack()
+
+x = 90
+y = 90
+
+def key(event):
+    print("event",event)
+    if event.char=='d':
+        set_pos(x+1, y)
+    if event.char=='a':
+        set_pos(x-1, y)
+    if event.char=='s':
+        set_pos(x, y+1)
+    if event.char=='w':
+        set_pos(x, y-1)
 
 def motion(event):
-    x, y = event.x, event.y
+    set_pos(event.x, event.y)
+    
+def set_pos(new_x, new_y):
+    global x,y
+    x, y = new_x, new_y
     print('{}, {}'.format(x, y))
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Connect to server and send data
@@ -35,6 +55,10 @@ def motion(event):
             positions[1] = 180 - positions[1]
         sock.sendall(json.dumps(positions).encode())
         #sock.sendall(bytes([x,y]))
+    my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
+    my_canvas.create_oval(x-5, y-5, x+5, y+5)
 
-root.bind('<Motion>', motion)
+root.bind('<B1-Motion>', motion)
+root.bind('<Button-1>', motion)
+root.bind('<Key>', key)
 root.mainloop()
