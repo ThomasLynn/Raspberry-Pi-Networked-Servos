@@ -27,19 +27,22 @@ HOST, PORT = args.ip, int(args.port)
 
 root = tk.Tk()
 root.geometry(args.sizex+"x"+args.sizey)
-win_size = (float(args.sizex), float(args.sizey))
-circle_size = (win_size[0] / 20, win_size[1] / 20)
-jump_size = (float(args.movex), float(args.movey))
-servo_zero_positions = (float(args.x1), float(args.y1))
-servo_distance = (float(args.x2)-float(args.x1), float(args.y2)-float(args.y1))
+win_size = [float(args.sizex), float(args.sizey)]
+circle_size = [win_size[0] / 20, win_size[1] / 20]
+jump_size = [float(args.movex), float(args.movey)]
+servo_zero_positions = [float(args.x1), float(args.y1)]
+servo_distance = [float(args.x2)-float(args.x1), float(args.y2)-float(args.y1)]
 
-my_canvas = tk.Canvas(root, width = win_size[0], height = win_size[1])
-my_canvas.pack()
+my_canvas = None
 
 x = 90
 y = 90
 
 sock = None
+
+def set_socket(new_sock):
+    global sock
+    sock = new_sock
 
 def key(event):
     if event.char=='d':
@@ -54,26 +57,33 @@ def key(event):
 def motion(event):
     set_pos(event.x, event.y)
     
-def set_pos(new_x, new_y):
+def set_pos(new_x, new_y, canvas_sizes = None):
     global x,y
     x, y = new_x, new_y
-    positions = [servo_zero_positions[0] + (float(x)/win_size[0])*servo_distance[0]
-        ,servo_zero_positions[1] + (float(y)/win_size[0])*servo_distance[1]]
-    print(x,y,positions)
+    if canvas_sizes is None:
+        positions = [servo_zero_positions[0] + (float(x)/win_size[0])*servo_distance[0]
+            ,servo_zero_positions[1] + (float(y)/win_size[0])*servo_distance[1]]
+    else:
+        positions = [servo_zero_positions[0] + (float(x)/canvas_sizes[0])*servo_distance[0]
+            ,servo_zero_positions[1] + (float(y)/canvas_sizes[0])*servo_distance[1]]
     if args.flip1:
         positions[0] = 180 - positions[0]
     if args.flip2:
         positions[1] = 180 - positions[1]
     sock.sendall(json.dumps(positions).encode())
     #sock.sendall(bytes([x,y]))
-    my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
-    my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1], fill = "red")
+    if my_canvas is not None:
+        my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
+        my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1], fill = "red")
 
-root.bind('<B1-Motion>', motion)
-root.bind('<Button-1>', motion)
-root.bind('<Key>', key)
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket:
-    # Connect to server and send data
-    sock = socket
-    socket.connect((HOST, PORT))
-    root.mainloop()
+if __name__ == "__main__":
+    my_canvas = tk.Canvas(root, width = win_size[0], height = win_size[1])
+    my_canvas.pack()
+    root.bind('<B1-Motion>', motion)
+    root.bind('<Button-1>', motion)
+    root.bind('<Key>', key)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        # Connect to server and send data
+        set_socket(sock)
+        sock.connect((HOST, PORT))
+        root.mainloop()
