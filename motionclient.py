@@ -36,6 +36,24 @@ df = pandas.DataFrame(columns = ["Start", "End"])
   
 # Capturing video
 video = cv2.VideoCapture(0)
+
+# from https://stackoverflow.com/questions/44865023/how-can-i-create-a-circular-mask-for-a-numpy-array
+def create_circular_mask(h, w, center=None, radius=None):
+
+    if center is None: # use the middle of the image
+        center = (int(w/2), int(h/2))
+    if radius is None: # use the smallest distance between the center and image walls
+        radius = min(center[0], center[1], w-center[0], h-center[1])
+
+    Y, X = np.ogrid[:h, :w]
+    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
+
+    mask = dist_from_center <= radius
+    mask = np.array(mask, dtype = np.uint8)
+    return mask
+    
+#kernel = np.ones((45,45),np.uint8)
+kernel = create_circular_mask(45,45)
   
 # Infinite while loop to treat stack of image as video
 while True:
@@ -50,8 +68,6 @@ while True:
   
     # Converting gray scale image to GaussianBlur 
     # so that change can be find easily
-    #gray = cv2.GaussianBlur(gray, (21, 21), 0)
-    #gray = cv2.GaussianBlur(gray, (31, 31), 0)
     gray = cv2.GaussianBlur(frame, (21, 21), 0)
   
     # In first iteration we assign the value 
@@ -77,10 +93,7 @@ while True:
   
     # If change in between static background and
     # current frame is greater than 30 it will show white color(255)
-    #thresh_frame = cv2.threshold(diff_frame, 30, 255, cv2.THRESH_BINARY)[1]
     thresh_frame = cv2.threshold(diff_frame, threshold_value, 255, cv2.THRESH_BINARY)[1]
-    kernel = np.ones((45,45),np.uint8)
-    #thresh_frame = cv2.dilate(thresh_frame, None, iterations = 2)
     thresh_frame = cv2.dilate(thresh_frame, kernel, iterations = 2)
   
     # Finding contour of moving object
