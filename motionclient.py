@@ -7,10 +7,22 @@ import cv2, time, pandas
 import numpy as np
 # importing datetime class from datetime library
 from datetime import datetime
-  
+
+# Number of (old) diff_frames to use
+# Set to 1 for no old diff_frames
+num_diff_frames = 4
+
+# Threshold for difference
+# increase this if using more num_diff_frames
+threshold_value = 40
+
+
+
 # Assigning our static_back to None
-static_back = []
-static_back_length = 3
+static_back = None
+
+# List of all the old diff_frames
+diff_frames = []
   
 # List when any moving object appear
 motion_list = [ None, None ]
@@ -44,21 +56,29 @@ while True:
   
     # In first iteration we assign the value 
     # of static_back to our first frame
-    if len(static_back)==0:
-        static_back.append(gray)
+    if static_back is None:
+        static_back = gray
         continue
   
     # Difference between static background 
     # and current frame(which is GaussianBlur)
-    diff_frame = cv2.absdiff(static_back[0], gray)
-    for i in range(1,len(static_back)):
-        diff_frame += cv2.absdiff(static_back[i], gray)
+    diff_frame = cv2.absdiff(static_back, gray)
     diff_frame = cv2.cvtColor(diff_frame, cv2.COLOR_BGR2GRAY) ###
+    
+    diff_frames.append(diff_frame)
+    if len(diff_frames)>num_diff_frames:
+        diff_frames.pop(0)
+    
+    diff_frame = np.zeros((480,640),dtype = np.uint8)
+    
+    for i in range(0,len(diff_frames)):
+        diff_frame += diff_frames[i]
+    
   
     # If change in between static background and
     # current frame is greater than 30 it will show white color(255)
     #thresh_frame = cv2.threshold(diff_frame, 30, 255, cv2.THRESH_BINARY)[1]
-    thresh_frame = cv2.threshold(diff_frame, 30, 255, cv2.THRESH_BINARY)[1]
+    thresh_frame = cv2.threshold(diff_frame, threshold_value, 255, cv2.THRESH_BINARY)[1]
     kernel = np.ones((45,45),np.uint8)
     #thresh_frame = cv2.dilate(thresh_frame, None, iterations = 2)
     thresh_frame = cv2.dilate(thresh_frame, kernel, iterations = 2)
@@ -112,10 +132,7 @@ while True:
             time.append(datetime.now())
         break
         
-    #static_back = gray # now dects difference between this frame and last
-    static_back.append(gray)
-    if len(static_back)>static_back_length:
-        static_back.pop(0)
+    static_back = gray # now dects difference between this frame and last
   
 # Appending time of motion in DataFrame
 for i in range(0, len(time), 2):
