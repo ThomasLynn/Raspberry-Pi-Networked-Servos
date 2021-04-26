@@ -68,17 +68,17 @@ while True:
   
     # Converting gray scale image to GaussianBlur 
     # so that change can be find easily
-    gray = cv2.GaussianBlur(frame, (21, 21), 0)
+    blurred = cv2.GaussianBlur(frame, (21, 21), 0)
   
     # In first iteration we assign the value 
     # of static_back to our first frame
     if static_back is None:
-        static_back = gray
+        static_back = blurred
         continue
   
     # Difference between static background 
     # and current frame(which is GaussianBlur)
-    diff_frame = cv2.absdiff(static_back, gray)
+    diff_frame = cv2.absdiff(static_back, blurred)
     diff_frame = cv2.cvtColor(diff_frame, cv2.COLOR_BGR2GRAY) ###
     
     diff_frames.append(diff_frame)
@@ -146,7 +146,7 @@ while True:
             time.append(datetime.now())
         break
         
-    static_back = gray # now dects difference between this frame and last
+    static_back = blurred # now dects difference between this frame and last
   
 # Appending time of motion in DataFrame
 for i in range(0, len(time), 2):
