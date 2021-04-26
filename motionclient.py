@@ -100,6 +100,7 @@ while True:
     cnts,_ = cv2.findContours(thresh_frame.copy(), 
                        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
   
+    frame_cnt = np.array(frame)
     for contour in cnts:
         #if cv2.contourArea(contour) < 10000:
         if cv2.contourArea(contour) < 1000:
@@ -108,7 +109,7 @@ while True:
   
         (x, y, w, h) = cv2.boundingRect(contour)
         # making green rectangle arround the moving object
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        cv2.rectangle(frame_cnt, (x, y), (x + w, y + h), (0, 255, 0), 3)
   
     # Appending status of motion
     motion_list.append(motion)
@@ -123,19 +124,19 @@ while True:
     if motion_list[-1] == 0 and motion_list[-2] == 1:
         time.append(datetime.now())
   
-    # Displaying image in gray_scale
-    cv2.imshow("Gray Frame", gray)
+    # Displaying color frame with contour of motion of object
+    cv2.imshow("Color Frame (1)", frame)
   
     # Displaying the difference in currentframe to
     # the staticframe(very first_frame)
-    cv2.imshow("Difference Frame", diff_frame)
+    cv2.imshow("Difference Frame (2)", diff_frame)
   
     # Displaying the black and white image in which if
     # intensity difference greater than 30 it will appear white
-    cv2.imshow("Threshold Frame", thresh_frame)
+    cv2.imshow("Threshold Frame (3)", thresh_frame)
   
-    # Displaying color frame with contour of motion of object
-    cv2.imshow("Color Frame", frame)
+    # Displaying image in gray_scale
+    cv2.imshow("Contour Frame (4)", frame_cnt)
   
     key = cv2.waitKey(1)
     # if q entered whole process will stop
