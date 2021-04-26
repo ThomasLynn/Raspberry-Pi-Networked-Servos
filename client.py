@@ -15,6 +15,11 @@ parser.add_argument("-flip1", action='store_true', help="Flip servo 1?")
 parser.add_argument("-flip2", action='store_true', help="Flip servo 2?")
 parser.add_argument("-movex", default="1", help="Jump size when using A and D")
 parser.add_argument("-movey", default="1", help="Jump size when using W and S")
+parser.add_argument("-x1", default="0", help="Lowerbound of x servo angle")
+parser.add_argument("-x2", default="180", help="Upperbound of x servo angle")
+parser.add_argument("-y1", default="0", help="Lowerbound of y servo angle")
+parser.add_argument("-y2", default="180", help="Upperbound of y servo angle")
+
 args = parser.parse_args()
 print("args",args)
 
@@ -25,6 +30,8 @@ root.geometry(args.sizex+"x"+args.sizey)
 win_size = (float(args.sizex), float(args.sizey))
 circle_size = (win_size[0] / 20, win_size[1] / 20)
 jump_size = (float(args.movex), float(args.movey))
+servo_zero_positions = (float(args.x1), float(args.y1))
+servo_distance = (float(args.x2)-float(args.x1), float(args.y2)-float(args.y1))
 
 my_canvas = tk.Canvas(root, width = win_size[0], height = win_size[1])
 my_canvas.pack()
@@ -50,8 +57,9 @@ def motion(event):
 def set_pos(new_x, new_y):
     global x,y
     x, y = new_x, new_y
-    print('{}, {}'.format(x, y))
-    positions = [float(x)*180.0/win_size[0],float(y)*180.0/win_size[0]]
+    positions = [servo_zero_positions[0] + (float(x)/win_size[0])*servo_distance[0]
+        ,servo_zero_positions[1] + (float(y)/win_size[0])*servo_distance[1]]
+    print(x,y,positions)
     if args.flip1:
         positions[0] = 180 - positions[0]
     if args.flip2:
@@ -59,7 +67,7 @@ def set_pos(new_x, new_y):
     sock.sendall(json.dumps(positions).encode())
     #sock.sendall(bytes([x,y]))
     my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
-    my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1])
+    my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1], fill = "red")
 
 root.bind('<B1-Motion>', motion)
 root.bind('<Button-1>', motion)
