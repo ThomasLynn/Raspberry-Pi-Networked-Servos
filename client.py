@@ -71,7 +71,6 @@ def set_pos(new_x, new_y, canvas_sizes = None):
     if args.flip2:
         positions[1] = 180 - positions[1]
     sock.sendall(json.dumps(positions).encode())
-    #sock.sendall(bytes([x,y]))
     if my_canvas is not None:
         my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
         my_canvas.create_oval(x-circle_size[0], y-circle_size[1], x+circle_size[0], y+circle_size[1], fill = "red")
