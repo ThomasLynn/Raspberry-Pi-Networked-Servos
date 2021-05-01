@@ -82,7 +82,7 @@ if __name__ == "__main__":
     root.bind('<B1-Motion>', motion)
     root.bind('<Button-1>', motion)
     root.bind('<Key>', key)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         # Connect to server and send data
         set_socket(sock)
         sock.connect((HOST, PORT))
