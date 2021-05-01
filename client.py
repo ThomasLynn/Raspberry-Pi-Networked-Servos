@@ -6,7 +6,7 @@ import tkinter as tk
 import json
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-ip", default="127.0.0.1",
+parser.add_argument("ip",
     help="The ip the server should be bound to, type ipconfig (or ifconfig) in the command line to get your local ip.")
 parser.add_argument("-port", default="3647", help="The port the server should be bound to.")
 parser.add_argument("-sizex", default="400", help="X size of window")
