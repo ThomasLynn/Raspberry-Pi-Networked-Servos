@@ -16,7 +16,7 @@ num_diff_frames = 4
 
 # Threshold for difference
 # increase this if using more num_diff_frames
-threshold_value = 50
+threshold_value = 20
 
 
 
@@ -53,6 +53,7 @@ def create_circular_mask(h, w, center=None, radius=None):
     
 #kernel = np.ones((45,45),np.uint8)
 kernel = create_circular_mask(45,45)
+kernel_laser = create_circular_mask(23,23)
  
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
     # Connect to server and send data
@@ -72,7 +73,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         # Converting gray scale image to GaussianBlur 
         # so that change can be find easily
         blurred = cv2.GaussianBlur(frame, (21, 21), 0)
-        blurred[:,:,2] = 0
       
         # In first iteration we assign the value 
         # of static_back to our first frame
@@ -82,8 +82,23 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
       
         # Difference between static background 
         # and current frame(which is GaussianBlur)
-        diff_frame = cv2.absdiff(static_back, blurred)
+        static_back_copy_non_red = static_back.copy()
+        static_back_copy_non_red[:,:,2] = 0
+        blurred_copy_non_red = blurred.copy()
+        blurred_copy_non_red[:,:,2] = 0
+        diff_frame_non_red = cv2.absdiff(static_back_copy_non_red, blurred_copy_non_red)
+        
+        blurred_copy_red = blurred.copy()
+        blurred_copy_red[:,:,:2] = 0
+        blurred_copy_red = cv2.threshold(blurred_copy_red, 200, 255, cv2.THRESH_BINARY)[1]
+        blurred_copy_red = cv2.dilate(blurred_copy_red, kernel_laser, iterations = 1)
+        blurred_copy_red[:,:,0] = blurred_copy_red[:,:,2]
+        blurred_copy_red[:,:,1] = blurred_copy_red[:,:,2]
+        
+        diff_frame = (diff_frame_non_red.astype(np.int32) * (blurred_copy_red==0)).clip(0, 255).astype(np.uint8)
+        
         diff_frame = cv2.cvtColor(diff_frame, cv2.COLOR_BGR2GRAY) ###
+        #diff_frame = cv2.GaussianBlur(diff_frame, (11, 11), 0)
         
         diff_frames.append(diff_frame)
         if len(diff_frames)>num_diff_frames:
@@ -128,16 +143,22 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         # Displaying color frame with contour of motion of object
         cv2.imshow("Color Frame (1)", frame)
       
+        # Displaying image in gray_scale
+        cv2.imshow("Non Red Difference (2)", diff_frame_non_red)
+      
+        # Displaying image in gray_scale
+        cv2.imshow("Red Laser Filter (3)", blurred_copy_red.astype(np.uint8))
+      
         # Displaying the difference in currentframe to
         # the staticframe(very first_frame)
-        cv2.imshow("Difference Frame (2)", diff_frame)
+        cv2.imshow("Difference Frame (4)", diff_frame)
       
         # Displaying the black and white image in which if
         # intensity difference greater than 30 it will appear white
-        cv2.imshow("Threshold Frame (3)", thresh_frame)
+        cv2.imshow("Threshold Frame (5)", thresh_frame)
       
         # Displaying image in gray_scale
-        cv2.imshow("Contour Frame (4)", frame_cnt)
+        cv2.imshow("Contour Frame (6)", frame_cnt)
       
         key = cv2.waitKey(1)
         # if q entered whole process will stop
