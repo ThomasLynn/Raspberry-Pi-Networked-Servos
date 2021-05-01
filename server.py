@@ -41,8 +41,8 @@ class CommandTCPHandler(socketserver.BaseRequestHandler):
                 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-ip", default="127.0.0.1",
-    help="The ip the server should be bound to, type ipconfig (or ifconfig) in the command line to get your local ip.")
+parser.add_argument("-ip", default="",
+    help="Specify an ip the server should be bound to, type ipconfig (or ifconfig) in the command line to get your local ip.")
 parser.add_argument("-port", default="3647", help="The port the server should be bound to.")
 parser.add_argument("-x_servo", default="12", help="GPIO pin of servo controlled by x axis movement")
 parser.add_argument("-y_servo", default="13", help="GPIO pin of servo controlled by y axis movement")
