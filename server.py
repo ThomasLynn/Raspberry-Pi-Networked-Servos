@@ -9,36 +9,18 @@ import pigpio
 
 pi = pigpio.pi()
 
-class CommandTCPHandler(socketserver.BaseRequestHandler):
-    
-    def set_position(self, data):
-        print("got data",type(data),data)
-        for i in range(len(data)):
-            if chr(data[i]) == "]":
-                data = data[:i+1]
-                break
-        print("got data2",type(data),data)
-        data = json.loads(data)
-        print("data2",type(data),data)
-        for i in range(len(servos)):
-            servos[i].set_angle(data[i], False)
-            servos[i].chill_bro()
-
-    def handle(self):
-        while True:
-            # self.request is the TCP socket connected to the client
-            data = self.request.recv(10_000)
-            if len(data) == 0:
-                break
-            print("data",type(data),data)
-            #self.data = list(self.data)
-            
-            self.set_position(data)
-            #split_data = str(data).split("][")
-            #for w in split_data:
-            #    self.set_position(str(w))
-            
-                
+def set_position(data):
+    print("got data",type(data),data)
+    for i in range(len(data)):
+        if chr(data[i]) == "]":
+            data = data[:i+1]
+            break
+    print("got data2",type(data),data)
+    data = json.loads(data)
+    print("data2",type(data),data)
+    for i in range(len(servos)):
+        servos[i].set_angle(data[i], False)
+        servos[i].chill_bro()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-ip", default="",
@@ -55,16 +37,22 @@ servos = myservo.Servo(int(args.x_servo),pi),myservo.Servo(int(args.y_servo),pi)
 # Create the server, binding to localhost on port 3647
 server = None
 try:
-    server = socketserver.TCPServer((HOST, PORT), CommandTCPHandler, bind_and_activate=False)
-    server.allow_reuse_address = True
-    server.server_bind()
-    server.server_activate()
+    sock = socket.socket(socket.AF_INET, # Internet
+                          socket.SOCK_DGRAM) # UDP
+    sock.bind((HOST, PORT))
     
-    server.timeout = 0.1
+    sock.settimeout(.02)
+    
+    #server.timeout = 0.1
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     while True:
-        server.handle_request()
+        try:
+            data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+            print("data",data,"addr",addr)
+            set_position(data)
+        except socket.timeout:
+            pass
         for w in servos:
             w.chill_bro()
     #server.serve_forever()
