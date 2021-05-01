@@ -54,7 +54,7 @@ def create_circular_mask(h, w, center=None, radius=None):
 #kernel = np.ones((45,45),np.uint8)
 kernel = create_circular_mask(45,45)
  
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
     # Connect to server and send data
     sock.connect((client.HOST, client.PORT))
     client.set_socket(sock)
