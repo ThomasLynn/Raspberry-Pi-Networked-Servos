@@ -14,11 +14,10 @@ class Servo:
         self.wait_time = None
 
     def set_angle(self, angle, block):
-        print("angles",self.starting_angle,angle,"pin",self.pin)
         if self.starting_angle != angle:
             norm = angle / 180.0
             norm = min(1,max(0,norm))
-            print("value",int(norm * 88_000 + 29_000))
+            print("old angle",self.starting_angle,"current angle",angle,"pin",self.pin,"value",int(norm * 88_000 + 29_000))
             self.pi.hardware_PWM(self.pin,50,int(norm * 88_000 + 29_000))            
             if self.starting_angle == None:
                 delta = 180
