@@ -32,6 +32,15 @@ circle_size = [win_size[0] / 20, win_size[1] / 20]
 jump_size = [float(args.movex), float(args.movey)]
 servo_zero_positions = [float(args.x), float(args.y)]
 servo_distance = [float(args.width), float(args.height)]
+if args.flip1:
+    print("flipping 1")
+    servo_zero_positions[0] = 180 - servo_zero_positions[0]
+    servo_distance[0] = - servo_distance[0]
+if args.flip2:
+    print("flipping 2")
+    servo_zero_positions[1] = 180 - servo_zero_positions[1]
+    servo_distance[1] = - servo_distance[1]
+
 
 my_canvas = None
 
@@ -66,10 +75,6 @@ def set_pos(new_x, new_y, canvas_sizes = None):
     else:
         positions = [servo_zero_positions[0] + (float(x)/canvas_sizes[0])*servo_distance[0]
             ,servo_zero_positions[1] + (float(y)/canvas_sizes[0])*servo_distance[1]]
-    if args.flip1:
-        positions[0] = 180 - positions[0]
-    if args.flip2:
-        positions[1] = 180 - positions[1]
     sock.sendall(json.dumps(positions).encode())
     if my_canvas is not None:
         my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
