@@ -53,7 +53,7 @@ def create_circular_mask(h, w, center=None, radius=None):
     
 #kernel = np.ones((45,45),np.uint8)
 kernel = create_circular_mask(45,45)
-kernel_laser = create_circular_mask(23,23)
+kernel_laser = create_circular_mask(53,53)
  
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
     # Connect to server and send data

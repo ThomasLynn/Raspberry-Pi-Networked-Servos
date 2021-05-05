@@ -28,7 +28,7 @@ HOST, PORT = args.ip, int(args.port)
 root = tk.Tk()
 root.geometry(args.sizex+"x"+args.sizey)
 win_size = [float(args.sizex), float(args.sizey)]
-circle_size = [win_size[0] / 20, win_size[1] / 20]
+circle_size = [win_size[0] *0.05, win_size[0] * 0.07]
 jump_size = [float(args.movex), float(args.movey)]
 servo_zero_positions = [float(args.x), float(args.y)]
 servo_distance = [float(args.width), float(args.height)]
