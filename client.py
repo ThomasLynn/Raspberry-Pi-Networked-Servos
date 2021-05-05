@@ -54,6 +54,8 @@ def set_socket(new_sock):
     sock = new_sock
 
 def key(event):
+    global servo_zero_positions
+    global servo_distance
     if event.char=='d':
         set_pos(x+jump_size[0], y)
     if event.char=='a':
@@ -62,19 +64,36 @@ def key(event):
         set_pos(x, y+jump_size[1])
     if event.char=='w':
         set_pos(x, y-jump_size[1])
+        
+    #these don't actually work
+    if event.char=='z':
+        #servo_distance = [x-servo_distance[0],y-servo_distance[1]]
+        servo_zero_positions = get_servo_pos(x,y,win_size)
+        print("servo zero pos",servo_zero_positions)
+        print("servo_distance",servo_distance)
+    if event.char=='x':
+        servo_distance = [x-servo_zero_positions[0],y-servo_zero_positions[0]]
+        print("servo_distance",servo_distance)
+        print("servo zero pos",servo_zero_positions)
 
 def motion(event):
     set_pos(event.x, event.y)
+    
+def get_servo_pos(x,y,scales):
+    return [servo_zero_positions[0] + (float(x)/scales[0])*servo_distance[0]
+            ,servo_zero_positions[0] + (float(y)/scales[1])*servo_distance[1]]
     
 def set_pos(new_x, new_y, canvas_sizes = None):
     global x,y
     x, y = new_x, new_y
     if canvas_sizes is None:
-        positions = [servo_zero_positions[0] + (float(x)/win_size[0])*servo_distance[0]
-            ,servo_zero_positions[1] + (float(y)/win_size[0])*servo_distance[1]]
+        positions = get_servo_pos(x,y,win_size)
+        #positions = [servo_zero_positions[0] + (float(x)/win_size[0])*servo_distance[0]
+        #    ,servo_zero_positions[1] + (float(y)/win_size[1])*servo_distance[1]]
     else:
-        positions = [servo_zero_positions[0] + (float(x)/canvas_sizes[0])*servo_distance[0]
-            ,servo_zero_positions[1] + (float(y)/canvas_sizes[0])*servo_distance[1]]
+        positions = get_servo_pos(x,y,canvas_sizes)
+        #positions = [servo_zero_positions[0] + (float(x)/canvas_sizes[0])*servo_distance[0]
+        #    ,servo_zero_positions[1] + (float(y)/canvas_sizes[1])*servo_distance[1]]
     sock.sendall(json.dumps(positions).encode())
     if my_canvas is not None:
         my_canvas.create_rectangle(0, 0, win_size[0], win_size[1], fill='white')
