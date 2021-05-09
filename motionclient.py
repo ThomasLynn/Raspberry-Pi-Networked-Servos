@@ -1,6 +1,10 @@
 # Python program to implement 
 # Webcam Motion Detector
 # Taken from https://www.geeksforgeeks.org/webcam-motion-detector-python/
+# This code has been modified to detect changes in the image
+# from frame-to-frame instead of from the starting frame
+# various enhancements have been made to make this more reliable
+# (such as stacking the differences of multiple frames)
   
 # importing OpenCV, time and Pandas library
 import cv2, time, pandas
